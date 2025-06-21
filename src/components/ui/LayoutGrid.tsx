@@ -38,10 +38,16 @@ export function LayoutGrid({
       img.onload = () => {
         setImageAspects(prev => {
           // Determine if image is portrait, landscape, or square
+          // On mobile (single column), disable spanning to ensure all images show
+          const isMobile = window.innerWidth < 640;
+          if (isMobile) {
+            return {...prev, [card.id]: ""};
+          }
+          
           const aspectClass = img.height > img.width 
-            ? "row-span-2" // Portrait (tall)
+            ? "sm:row-span-2" // Portrait (tall) - only on sm and up
             : img.width > img.height * 1.2
-              ? "col-span-2" // Wide landscape
+              ? "lg:col-span-2" // Wide landscape - only on lg and up
               : ""; // Standard landscape or square
           
           return {...prev, [card.id]: aspectClass};
@@ -71,7 +77,7 @@ export function LayoutGrid({
   return (
     <div
       className={cn(
-        "w-full h-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-max gap-4 p-4 mx-auto",
+        "w-full h-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-max gap-3 sm:gap-4 p-2 sm:p-4 mx-auto",
         className
       )}
     >
@@ -81,8 +87,7 @@ export function LayoutGrid({
           className={cn(
             "relative rounded-xl cursor-pointer",
             imageAspects[card.id] || "",
-            card.className,
-            hovered !== null && hovered !== card.id && "blur-sm scale-[0.98]"
+            card.className
           )}
           onClick={() => handleClick(card)}
           onMouseEnter={() => handleMouseEnter(card.id)}
@@ -144,7 +149,7 @@ export const Card = ({
           scale: isSelected ? 0.95 : 1,
         }}
       >
-        <div className="w-full h-full min-h-[250px]">
+        <div className="w-full h-full min-h-[200px] sm:min-h-[250px]">
           <motion.img
             src={card.thumbnail}
             className="h-full w-full object-cover object-center"
@@ -153,12 +158,12 @@ export const Card = ({
         </div>
         <div 
           className={cn(
-            "absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60 flex flex-col justify-end p-4 transition-opacity duration-300",
+            "absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60 flex flex-col justify-end p-3 sm:p-4 transition-opacity duration-300",
             isHovered ? "opacity-100" : "opacity-70"
           )}
         >
-          <h3 className="text-white text-xl font-semibold mb-1">{card.content.alt}</h3>
-          <p className="text-white/80 text-sm">{card.content.category}</p>
+          <h3 className="text-white text-lg sm:text-xl font-semibold mb-1">{card.content.alt}</h3>
+          <p className="text-white/80 text-xs sm:text-sm">{card.content.category}</p>
         </div>
       </motion.div>
     </div>
@@ -175,18 +180,18 @@ export const SelectedCard = ({
   return (
     <motion.div
       layoutId={`card-${card.id}`}
-      className="bg-black relative max-w-5xl w-full h-auto max-h-[85vh] rounded-xl overflow-hidden"
+      className="bg-black relative max-w-5xl w-full mx-2 sm:mx-4 h-auto max-h-[90vh] sm:max-h-[85vh] rounded-xl overflow-hidden"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="relative flex items-center justify-center p-0">
         <img
           src={card.thumbnail}
-          className="w-full h-auto max-h-[80vh] object-contain"
+          className="w-full h-auto max-h-[75vh] sm:max-h-[80vh] object-contain"
           alt={card.content.alt}
         />
         <motion.button
           onClick={onClose}
-          className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-sm z-10"
+          className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-sm z-10"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -194,7 +199,7 @@ export const SelectedCard = ({
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
-            className="w-6 h-6"
+            className="w-5 h-5 sm:w-6 sm:h-6"
           >
             <path
               strokeLinecap="round"
@@ -204,10 +209,11 @@ export const SelectedCard = ({
           </svg>
         </motion.button>
       </div>
-      <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-4">
-        <h3 className="text-white text-xl font-semibold mb-1">{card.content.alt}</h3>
+      <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-3 sm:p-4">
+        <h3 className="text-white text-lg sm:text-xl font-semibold mb-1">{card.content.alt}</h3>
         <p className="text-white/80 text-sm">{card.content.category}</p>
       </div>
     </motion.div>
   );
 };
+ 
